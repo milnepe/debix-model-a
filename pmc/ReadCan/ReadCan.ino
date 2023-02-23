@@ -1,0 +1,54 @@
+/*
+  CAN Read Example
+
+  This sketch shows how to use the CAN transceiver on the Machine
+  Control and how to receive data from the RX CAN channel.
+
+  Circuit:
+   - Portenta H7
+   - Machine Control
+
+*/
+#include <Arduino_MachineControl.h>
+#include <CAN.h>
+
+using namespace machinecontrol;
+
+#define DATARATE_2MB 2000000
+#define DATARATE_1_5MB 1500000
+#define DATARATE_1MB 1000000
+#define DATARATE_800KB 800000
+
+
+void setup() {
+  Serial.begin(115200);
+  while (!Serial) {
+    ;  // wait for serial port to connect.
+  }
+
+  Serial.println("Start CAN initialization");
+  comm_protocols.enableCAN();
+  comm_protocols.can.frequency(DATARATE_1MB);
+  Serial.println("Initialization done");
+}
+
+
+void loop() {
+  mbed::CANMessage msg;
+  if (comm_protocols.can.read(msg)) {
+
+    // Print the sender ID
+    Serial.print("ID: ");
+    Serial.println(msg.id, HEX);
+
+    // Print the first Payload Byte
+    Serial.print("Message received:");
+    //Serial.println(msg.data[0], HEX);
+    for (int i = 0; i < msg.len; i++) {
+      Serial.print((char)msg.data[i]);
+    }
+    Serial.println();
+  }
+
+  delay(100);
+}
